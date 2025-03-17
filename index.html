@@ -27,7 +27,15 @@
             top: 50px; 
             transform: translateX(-50%);
         }
-        #message { display: none; font-size: 24px; color: red; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); }
+        #message { 
+            display: none; 
+            font-size: 4vw; /* Уменьшаем размер шрифта */
+            color: red; 
+            position: absolute; 
+            top: 50%; 
+            left: 50%; 
+            transform: translate(-50%, -50%); 
+        }
         #congrats-container {
             position: absolute;
             top: 20%;
@@ -36,15 +44,15 @@
             display: none; /* Скрыто до завершения игры */
         }
         #congrats-container h1 {
-            font-size: 36px;
+            font-size: 6vw; /* Уменьшаем размер шрифта */
             color: green;
         }
         #congrats-container p {
-            font-size: 24px;
+            font-size: 4vw; /* Уменьшаем размер шрифта */
         }
         #congrats-container button {
-            padding: 10px 20px;
-            font-size: 18px;
+            padding: 2vw 5vw;
+            font-size: 3.5vw; /* Уменьшаем размер шрифта */
             cursor: pointer;
             background-color: blue;
             color: white;
@@ -59,16 +67,16 @@
             display: none; /* Скрыто до нажатия "Продолжить" */
         }
         #birthday-container h1 {
-            font-size: 36px;
+            font-size: 6vw; /* Уменьшаем размер шрифта */
             color: red;
         }
         #birthday-container p {
-            font-size: 24px;
+            font-size: 4vw; /* Уменьшаем размер шрифта */
             color: #D64D4D; /* Новый цвет для пожеланий */
         }
         #birthday-container button {
-            padding: 10px 20px;
-            font-size: 18px;
+            padding: 2vw 5vw;
+            font-size: 3.5vw; /* Уменьшаем размер шрифта */
             cursor: pointer;
             background-color: green;
             color: white;
@@ -82,14 +90,14 @@
             transform: translateX(-50%);
         }
         #intro-container h1 {
-            font-size: 36px;
+            font-size: 6vw; /* Уменьшаем размер шрифта */
         }
         #intro-container p {
-            font-size: 24px;
+            font-size: 4vw; /* Уменьшаем размер шрифта */
         }
         #intro-container button {
-            padding: 10px 20px;
-            font-size: 18px;
+            padding: 2vw 5vw;
+            font-size: 3.5vw; /* Уменьшаем размер шрифта */
             cursor: pointer;
             background-color: blue;
             color: white;
@@ -117,7 +125,7 @@
             0%, 100% { transform: translateY(0); }
             50% { transform: translateY(-20px); }
         }
-        
+
         /* Джойстик */
         #joystick-container {
             position: absolute;
@@ -127,7 +135,7 @@
             height: 150px;
             border: 2px solid white;
             border-radius: 50%;
-            display: flex;
+            display: none; /* Скрываем джойстик до начала игры */
             align-items: center;
             justify-content: center;
         }
@@ -195,6 +203,7 @@
         let congratsContainer = document.getElementById("congrats-container"); // Контейнер с поздравлением
         let continueButton = document.getElementById("continue-button");
         let birthdayContainer = document.getElementById("birthday-container"); // Экран поздравления с Днём Рождения
+        let joystickContainer = document.getElementById("joystick-container");
         let joystick = document.getElementById("joystick-inner");
 
         let positionX = window.innerWidth / 2 - 25;  
@@ -209,6 +218,7 @@
         startButton.addEventListener("click", function() {
             introContainer.style.display = "none";  // Скрываем вступительный экран
             gameContainer.style.display = "block";  // Показываем игровой экран
+            joystickContainer.style.display = "flex"; // Показываем джойстик
             gameLoop();  // Запускаем игровой цикл
         });
 
@@ -271,6 +281,7 @@
             ) {
                 heartCaught = true;  
                 gameContainer.style.display = "none";  
+                joystickContainer.style.display = "none"; // Скрываем джойстик
                 congratsContainer.style.display = "block";  // Показываем экран поздравления
             }
         }
@@ -316,7 +327,7 @@
         });
 
         function updateJoystickPosition(e) {
-            let bounds = document.getElementById("joystick-container").getBoundingClientRect();
+            let bounds = joystickContainer.getBoundingClientRect();
             let touch = e.touches[0];
             let offsetX = touch.clientX - bounds.left - bounds.width / 2;
             let offsetY = touch.clientY - bounds.top - bounds.height / 2;
