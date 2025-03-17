@@ -12,18 +12,22 @@
             color: white;
             margin: 0;
             overflow: hidden;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
         }
 
-        #game-container { position: absolute; width: 100vw; height: 100vh; display: none; }
-        .player, .heart { width: 50px; height: 50px; position: absolute; }
-        .player { background: blue; left: 50%; bottom: 10px; transform: translateX(-50%); }
+        #game-container { position: absolute; width: 100%; height: 100%; display: none; }
+        .player, .heart { width: 5vw; height: 5vw; position: absolute; }
+        .player { background: blue; left: 50%; bottom: 10%; transform: translateX(-50%); }
         .heart { 
             background: url('https://cdn-icons-png.flaticon.com/512/833/833472.png') no-repeat center/cover; 
             left: 50%; 
-            top: 50px; 
+            top: 10%; 
             transform: translateX(-50%);
         }
-        #message { display: none; font-size: 4vw; color: red; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); }
+        #message { display: none; font-size: 3vw; color: red; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); }
         #congrats-container, #birthday-container, #intro-container {
             position: absolute;
             left: 50%;
@@ -53,14 +57,14 @@
 
         .bear {
             position: absolute;
-            width: 50px;
-            height: 50px;
+            width: 5vw;
+            height: 5vw;
             background: url('https://cdn.pixabay.com/photo/2017/08/30/12/32/teddy-2690951_960_720.png') no-repeat center/cover;
             animation: bounce 1.5s ease-in-out infinite;
         }
 
-        .bear-left { left: 10px; top: 50%; transform: translateY(-50%); }
-        .bear-right { right: 10px; top: 50%; transform: translateY(-50%); }
+        .bear-left { left: 10vw; top: 50%; transform: translateY(-50%); }
+        .bear-right { right: 10vw; top: 50%; transform: translateY(-50%); }
 
         @keyframes bounce {
             0%, 100% { transform: translateY(0); }
@@ -69,10 +73,10 @@
 
         #joystick-container {
             position: absolute;
-            bottom: 20px;
-            left: 20px;
-            width: 150px;
-            height: 150px;
+            bottom: 5vw;
+            left: 5vw;
+            width: 15vw;
+            height: 15vw;
             border: 2px solid white;
             border-radius: 50%;
             display: flex;
@@ -81,8 +85,8 @@
         }
 
         #joystick-inner {
-            width: 80px;
-            height: 80px;
+            width: 8vw;
+            height: 8vw;
             border: 2px solid white;
             border-radius: 50%;
             background: rgba(255, 255, 255, 0.5);
@@ -104,6 +108,28 @@
         @keyframes explode {
             0% { opacity: 1; transform: scale(0); }
             100% { opacity: 0; transform: scale(1); }
+        }
+
+        /* Медиазапросы для ПК */
+        @media (min-width: 768px) {
+            h1 { font-size: 3vw; }
+            p { font-size: 2vw; }
+            button { font-size: 2.5vw; }
+            #birthday-container h1 { font-size: 2.5vw; }
+            #birthday-container p { font-size: 2vw; }
+        }
+
+        .wish {
+            opacity: 0;
+            position: absolute;
+            font-size: 2vw;
+            transition: opacity 1s ease-out;
+        }
+
+        .wish.visible {
+            opacity: 1;
+            color: yellow;
+            font-weight: bold;
         }
     </style>
 </head>
@@ -157,8 +183,8 @@
         let joystick = document.getElementById("joystick-inner");
         let wishContainer = document.getElementById("wish-container");
 
-        let positionX = window.innerWidth / 2 - 25;
-        let positionY = window.innerHeight - 60;
+        let positionX = window.innerWidth / 2 - 5;
+        let positionY = window.innerHeight - 10;
         let heartCaught = false;
         let velocity = 5;
         let playerSpeedX = 0;
@@ -177,8 +203,8 @@
             if (heartCaught) return;
             positionX += playerSpeedX;
             positionY += playerSpeedY;
-            positionX = Math.max(0, Math.min(window.innerWidth - 50, positionX));
-            positionY = Math.max(0, Math.min(window.innerHeight - 50, positionY));
+            positionX = Math.max(0, Math.min(window.innerWidth - 5, positionX));
+            positionY = Math.max(0, Math.min(window.innerHeight - 10, positionY));
             player.style.left = positionX + "px";
             player.style.top = positionY + "px";
         }
@@ -186,8 +212,8 @@
         // Движение сердца
         function moveHeart() {
             if (heartCaught) return;
-            let maxX = window.innerWidth - 50;
-            let maxY = window.innerHeight - 50;
+            let maxX = window.innerWidth - 5;
+            let maxY = window.innerHeight - 10;
             let randomX = Math.floor(Math.random() * maxX);
             let randomY = Math.floor(Math.random() * maxY);
             heart.style.left = randomX + "px";
@@ -228,6 +254,28 @@
             generateRandomWishes();
         });
 
+        // Управление для ПК
+        window.addEventListener("keydown", function(e) {
+            if (e.key === "ArrowLeft" || e.key === "a") {
+                playerSpeedX = -velocity;
+            } else if (e.key === "ArrowRight" || e.key === "d") {
+                playerSpeedX = velocity;
+            } else if (e.key === "ArrowUp" || e.key === "w") {
+                playerSpeedY = -velocity;
+            } else if (e.key === "ArrowDown" || e.key === "s") {
+                playerSpeedY = velocity;
+            }
+        });
+
+        window.addEventListener("keyup", function(e) {
+            if (e.key === "ArrowLeft" || e.key === "ArrowRight" || e.key === "a" || e.key === "d") {
+                playerSpeedX = 0;
+            }
+            if (e.key === "ArrowUp" || e.key === "ArrowDown" || e.key === "w" || e.key === "s") {
+                playerSpeedY = 0;
+            }
+        });
+
         // Джойстик
         let joystickActive = false;
         let joystickX = 0;
@@ -263,28 +311,6 @@
             playerSpeedY = joystickY / 10;
         }
 
-        // Управление на клавиатуре для ПК
-        window.addEventListener("keydown", function(e) {
-            if (heartCaught) return;
-            if (e.key === "ArrowLeft" || e.key === "a") {
-                playerSpeedX = -velocity;
-            } else if (e.key === "ArrowRight" || e.key === "d") {
-                playerSpeedX = velocity;
-            } else if (e.key === "ArrowUp" || e.key === "w") {
-                playerSpeedY = -velocity;
-            } else if (e.key === "ArrowDown" || e.key === "s") {
-                playerSpeedY = velocity;
-            }
-        });
-
-        window.addEventListener("keyup", function(e) {
-            if (e.key === "ArrowLeft" || e.key === "a" || e.key === "ArrowRight" || e.key === "d") {
-                playerSpeedX = 0;
-            } else if (e.key === "ArrowUp" || e.key === "w" || e.key === "ArrowDown" || e.key === "s") {
-                playerSpeedY = 0;
-            }
-        });
-
         // Генерация случайных пожеланий
         function generateRandomWishes() {
             const wishes = [
@@ -292,19 +318,38 @@
                 "Смейся как можно больше и чаще! 🎉",
                 "Будь счастлива и успешна во всём! 💖",
                 "Желаю тебе самых ярких моментов в жизни!",
-                "Пусть сбудутся все твои мечты! ✨"
+                "Пусть сбудутся все твои мечты! ✨",
+                "Желаю тебе крепкого здоровья на многие годы! 💪",
+                "Чаще улыбайся и наслаждайся каждым моментом жизни! 😄",
+                "Пусть каждый день приносит тебе радость и вдохновение! 🌟",
+                "Желаю тебе много счастливых и ярких дней! 🌞",
+                "Ты заслуживаешь только лучшего в жизни! 🌈"
             ];
 
-            // Добавляем пожелания в случайные места
-            wishes.forEach(wish => {
-                let wishElement = document.createElement('p');
-                wishElement.textContent = wish;
-                wishElement.style.position = 'absolute';
-                wishElement.style.left = Math.random() * (window.innerWidth - 200) + 'px';
-                wishElement.style.top = Math.random() * (window.innerHeight - 50) + 'px';
-                wishElement.style.fontSize = '2vw';
-                wishContainer.appendChild(wishElement);
-            });
+            // Показываем пожелания по очереди с задержкой
+            let index = 0;
+
+            function showNextWish() {
+                if (index < wishes.length) {
+                    let wishElement = document.createElement('p');
+                    wishElement.textContent = wishes[index];
+                    wishElement.classList.add('wish');
+                    wishContainer.appendChild(wishElement);
+
+                    setTimeout(() => {
+                        wishElement.classList.add('visible');
+                    }, 100);
+
+                    // Скрываем пожелание через 3 секунды
+                    setTimeout(() => {
+                        wishElement.classList.remove('visible');
+                        index++;
+                        showNextWish(); // Показать следующее пожелание
+                    }, 3000);
+                }
+            }
+
+            showNextWish();
         }
     </script>
 </body>
