@@ -14,7 +14,6 @@
             overflow: hidden;
         }
 
-        /* --- твои стили без изменений --- */
         #game-container { position: absolute; width: 100vw; height: 100vh; display: none; }
         .player, .heart { width: 50px; height: 50px; position: absolute; }
         .player { background: blue; left: 50%; bottom: 10px; transform: translateX(-50%); }
@@ -95,30 +94,6 @@
             background: rgba(255, 255, 255, 0.8);
         }
 
-        /* Салют */
-        .firework {
-            position: absolute;
-            border-radius: 50%;
-            pointer-events: none;
-            animation: explode 1s ease-out forwards;
-        }
-
-        @keyframes explode {
-            0% { opacity: 1; transform: scale(0); }
-            100% { opacity: 0; transform: scale(1); }
-        }
-
-        #fireworks-button {
-            margin-top: 20px;
-            padding: 2vw 5vw;
-            font-size: 3.5vw;
-            cursor: pointer;
-            background-color: #FF69B4;
-            color: white;
-            border: none;
-            border-radius: 10px;
-            display: none; /* изначально скрыта */
-        }
     </style>
 </head>
 <body>
@@ -145,9 +120,6 @@
         <p>Желаю тебе яркой жизни, наполненной вдохновением и успехами! 💖</p>
         <div class="bear bear-left"></div>
         <div class="bear bear-right"></div>
-
-        <!-- Кнопка запуска салюта -->
-        <button id="fireworks-button">Запустить салют 🎆</button>
     </div>
 
     <!-- Игровой экран -->
@@ -175,7 +147,6 @@
         let birthdayContainer = document.getElementById("birthday-container");
         let joystickContainer = document.getElementById("joystick-container");
         let joystick = document.getElementById("joystick-inner");
-        let fireworksButton = document.getElementById("fireworks-button");
 
         let positionX = window.innerWidth / 2 - 25;
         let positionY = window.innerHeight - 60;
@@ -253,7 +224,6 @@
         continueButton.addEventListener("click", function() {
             congratsContainer.style.display = "none";
             birthdayContainer.style.display = "block";
-            fireworksButton.style.display = "inline-block"; // Показываем кнопку запуска салюта
         });
 
         // Джойстик
@@ -289,24 +259,6 @@
             joystickY = Math.sin(angle) * distance;
             playerSpeedX = joystickX / 10;
             playerSpeedY = joystickY / 10;
-        }
-
-        // Салют
-        fireworksButton.addEventListener("click", function() {
-            for (let i = 0; i < 20; i++) {
-                createFirework();
-            }
-        });
-
-        function createFirework() {
-            const firework = document.createElement('div');
-            firework.classList.add('firework');
-            firework.style.width = firework.style.height = `${Math.random() * 10 + 5}px`;
-            firework.style.left = `${Math.random() * window.innerWidth}px`;
-            firework.style.top = `${Math.random() * window.innerHeight}px`;
-            firework.style.backgroundColor = `hsl(${Math.random() * 360}, 100%, 50%)`;
-            document.body.appendChild(firework);
-            setTimeout(() => firework.remove(), 1000);
         }
     </script>
 </body>
