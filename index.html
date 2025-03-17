@@ -1,302 +1,336 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Поймай 3 сердечка ❤️</title>
-  <style>
-    body {
-      margin: 0;
-      overflow: hidden;
-      background: #1a1a1a;
-      font-family: Arial, sans-serif;
-      color: #fff;
-    }
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Мини-игра с поздравлением</title>
+    <style>
+        body { 
+            text-align: center; 
+            font-family: Arial, sans-serif; 
+            background: black url('https://www.transparenttextures.com/patterns/stardust.png'); 
+            color: white;
+            margin: 0;
+            overflow: hidden;
+        }
+        #game-container { 
+            position: absolute;
+            width: 100vw; 
+            height: 100vh;
+            display: none; /* Игра будет скрыта до начала */
+        }
+        .player, .heart { width: 50px; height: 50px; position: absolute; }
+        .player { background: blue; left: 50%; bottom: 10px; transform: translateX(-50%); }
+        .heart { 
+            background: url('https://cdn-icons-png.flaticon.com/512/833/833472.png') no-repeat center/cover; 
+            left: 50%; 
+            top: 50px; 
+            transform: translateX(-50%);
+        }
+        #message { display: none; font-size: 24px; color: red; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); }
+        #congrats-container {
+            position: absolute;
+            top: 20%;
+            left: 50%;
+            transform: translateX(-50%);
+            display: none; /* Скрыто до завершения игры */
+        }
+        #congrats-container h1 {
+            font-size: 36px;
+            color: green;
+        }
+        #congrats-container p {
+            font-size: 24px;
+        }
+        #congrats-container button {
+            padding: 10px 20px;
+            font-size: 18px;
+            cursor: pointer;
+            background-color: blue;
+            color: white;
+            border: none;
+            border-radius: 5px;
+        }
+        #birthday-container {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translateX(-50%) translateY(-50%);
+            display: none; /* Скрыто до нажатия "Продолжить" */
+        }
+        #birthday-container h1 {
+            font-size: 36px;
+            color: red;
+        }
+        #birthday-container p {
+            font-size: 24px;
+            color: #D64D4D; /* Новый цвет для пожеланий */
+        }
+        #birthday-container button {
+            padding: 10px 20px;
+            font-size: 18px;
+            cursor: pointer;
+            background-color: green;
+            color: white;
+            border: none;
+            border-radius: 5px;
+        }
+        #intro-container {
+            position: absolute;
+            top: 10%;
+            left: 50%;
+            transform: translateX(-50%);
+        }
+        #intro-container h1 {
+            font-size: 36px;
+        }
+        #intro-container p {
+            font-size: 24px;
+        }
+        #intro-container button {
+            padding: 10px 20px;
+            font-size: 18px;
+            cursor: pointer;
+            background-color: blue;
+            color: white;
+            border: none;
+            border-radius: 5px;
+        }
+        .bear {
+            position: absolute;
+            width: 50px;
+            height: 50px;
+            background: url('https://cdn.pixabay.com/photo/2017/08/30/12/32/teddy-2690951_960_720.png') no-repeat center/cover;
+            animation: bounce 1.5s ease-in-out infinite;
+        }
+        .bear-left {
+            left: 10px;
+            top: 50%;
+            transform: translateY(-50%);
+        }
+        .bear-right {
+            right: 10px;
+            top: 50%;
+            transform: translateY(-50%);
+        }
+        @keyframes bounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-20px); }
+        }
+        
+        /* Джойстик */
+        #joystick-container {
+            position: absolute;
+            bottom: 20px;
+            left: 20px;
+            width: 150px;
+            height: 150px;
+            border: 2px solid white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
 
-    #gameArea {
-      position: relative;
-      width: 100vw;
-      height: 100vh;
-      background: radial-gradient(circle, #2a2a2a, #1a1a1a);
-      overflow: hidden;
-    }
+        #joystick-inner {
+            width: 80px;
+            height: 80px;
+            border: 2px solid white;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.5);
+            position: relative;
+            cursor: pointer;
+        }
 
-    #player {
-      position: absolute;
-      width: 80px;
-      height: 80px;
-      background: url('https://cdn-icons-png.flaticon.com/512/3522/3522094.png') no-repeat center;
-      background-size: contain;
-      top: 50%;
-      left: 50%;
-      transform: translate(-50%, -50%);
-      z-index: 2;
-    }
-
-    .target {
-      position: absolute;
-      width: 60px;
-      height: 60px;
-      background: url('https://cdn-icons-png.flaticon.com/512/833/833472.png') no-repeat center;
-      background-size: contain;
-      z-index: 1;
-    }
-
-    #congrats {
-      display: none;
-      position: absolute;
-      top: 50%;
-      left: 50%;
-      transform: translate(-50%, -50%);
-      text-align: center;
-      font-size: 24px;
-      color: #fff;
-      z-index: 10;
-    }
-
-    /* Джойстик */
-    #joystick-container {
-      position: absolute;
-      bottom: 50px;
-      left: 50px;
-      width: 120px;
-      height: 120px;
-      background: rgba(255, 255, 255, 0.1);
-      border-radius: 50%;
-      touch-action: none;
-      z-index: 5;
-    }
-
-    #joystick {
-      position: absolute;
-      width: 60px;
-      height: 60px;
-      background: rgba(255, 255, 255, 0.5);
-      border-radius: 50%;
-      top: 30px;
-      left: 30px;
-      touch-action: none;
-    }
-
-    #score {
-      position: absolute;
-      top: 20px;
-      right: 20px;
-      font-size: 20px;
-      z-index: 5;
-    }
-
-  </style>
+        #joystick-inner.active {
+            background: rgba(255, 255, 255, 0.8);
+        }
+    </style>
 </head>
 <body>
+    <!-- Вступительный экран -->
+    <div id="intro-container">
+        <h1>🎉 С Днём Рождения! 🎉</h1>
+        <p>Чтобы пройти дальше, пройди мини-игру!</p>
+        <button id="start-button">Продолжить</button>
+    </div>
 
-<div id="gameArea">
-  <div id="player"></div>
-  <!-- Три сердечка -->
-  <div class="target" id="target1"></div>
-  <div class="target" id="target2"></div>
-  <div class="target" id="target3"></div>
+    <!-- Экран поздравления -->
+    <div id="congrats-container">
+        <h1>УРААА! Ты прошла дальше!</h1>
+        <p>У тебя всегда всё получается! 💪</p>
+        <button id="continue-button">Продолжить</button>
+    </div>
 
-  <div id="congrats">
-    <h1>Поздравляем! 🎉</h1>
-    <p>Ты поймал все 3 сердечка! ❤️❤️❤️</p>
-  </div>
+    <!-- Экран поздравления с Днём Рождения -->
+    <div id="birthday-container">
+        <h1>🎉 С Днём Рождения! 🎉</h1>
+        <p>Поздравляю! Желаю тебе счастья, здоровья и исполнения всех мечт! 🌟</p>
+        <p>Пусть этот день будет полон улыбок, радости и ярких моментов! 🎂</p>
+        <p>Забудь все заботы, ведь сегодня твой день! Пусть каждый момент будет особенным! ✨</p>
+        <p>Желаю тебе яркой жизни, наполненной вдохновением и успехами! 💖</p>
+        <div class="bear bear-left"></div>
+        <div class="bear bear-right"></div>
+    </div>
 
-  <div id="joystick-container">
-    <div id="joystick"></div>
-  </div>
+    <!-- Игровой экран -->
+    <div id="game-container">
+        <div class="player" id="player"></div>
+        <div class="heart" id="heart"></div>
+    </div>
+    <p id="message">🎉 С Днём Рождения! 💖💖💖</p>
 
-  <div id="score">Поймано: 0 / 3</div>
-</div>
+    <!-- Джойстик -->
+    <div id="joystick-container">
+        <div id="joystick-inner"></div>
+    </div>
 
-<script>
-  const player = document.getElementById('player');
-  const targets = [
-    { el: document.getElementById('target1'), x: 0, y: 0, speedX: 0, speedY: 0, active: true },
-    { el: document.getElementById('target2'), x: 0, y: 0, speedX: 0, speedY: 0, active: true },
-    { el: document.getElementById('target3'), x: 0, y: 0, speedX: 0, speedY: 0, active: true }
-  ];
-  const congrats = document.getElementById('congrats');
-  const scoreDisplay = document.getElementById('score');
+    <script>
+        let player = document.getElementById("player");
+        let heart = document.getElementById("heart");
+        let message = document.getElementById("message");
+        let gameContainer = document.getElementById("game-container"); 
+        let introContainer = document.getElementById("intro-container"); // Контейнер с вступлением
+        let startButton = document.getElementById("start-button");
+        let congratsContainer = document.getElementById("congrats-container"); // Контейнер с поздравлением
+        let continueButton = document.getElementById("continue-button");
+        let birthdayContainer = document.getElementById("birthday-container"); // Экран поздравления с Днём Рождения
+        let joystick = document.getElementById("joystick-inner");
 
-  const joystickContainer = document.getElementById('joystick-container');
-  const joystick = document.getElementById('joystick');
+        let positionX = window.innerWidth / 2 - 25;  
+        let positionY = window.innerHeight - 60;  
+        let heartCaught = false;
 
-  let playerX = window.innerWidth / 2;
-  let playerY = window.innerHeight / 2;
-  let playerSpeed = 4;
+        let velocity = 5;  
+        let playerSpeedX = 0;  
+        let playerSpeedY = 0;  
 
-  let moveLeft = false;
-  let moveRight = false;
-  let moveUp = false;
-  let moveDown = false;
+        // Начало игры
+        startButton.addEventListener("click", function() {
+            introContainer.style.display = "none";  // Скрываем вступительный экран
+            gameContainer.style.display = "block";  // Показываем игровой экран
+            gameLoop();  // Запускаем игровой цикл
+        });
 
-  let score = 0;
+        // Плавное движение персонажа
+        function movePlayer() {
+            if (heartCaught) return;  
 
-  // Инициализация позиций и скоростей сердечек
-  targets.forEach(target => {
-    target.x = Math.random() * (window.innerWidth - 60);
-    target.y = Math.random() * (window.innerHeight - 60);
-    target.speedX = (Math.random() * 4) + 5;
-    target.speedY = (Math.random() * 4) + 5;
-  });
+            positionX += playerSpeedX;
+            positionY += playerSpeedY;
 
-  function setPositions() {
-    player.style.left = `${playerX}px`;
-    player.style.top = `${playerY}px`;
+            positionX = Math.max(0, Math.min(window.innerWidth - 50, positionX));
+            positionY = Math.max(0, Math.min(window.innerHeight - 50, positionY));
 
-    targets.forEach(target => {
-      if (target.active) {
-        target.el.style.left = `${target.x}px`;
-        target.el.style.top = `${target.y}px`;
-      }
-    });
-  }
+            player.style.left = positionX + "px";
+            player.style.top = positionY + "px";
+        }
 
-  setPositions();
+        document.addEventListener("keydown", function(event) {
+            if (event.key === "ArrowLeft") {
+                playerSpeedX = -velocity;  
+            } else if (event.key === "ArrowRight") {
+                playerSpeedX = velocity;  
+            } else if (event.key === "ArrowUp") {
+                playerSpeedY = -velocity;  
+            } else if (event.key === "ArrowDown") {
+                playerSpeedY = velocity;  
+            }
+        });
 
-  function gameLoop() {
-    if (moveLeft) playerX -= playerSpeed;
-    if (moveRight) playerX += playerSpeed;
-    if (moveUp) playerY -= playerSpeed;
-    if (moveDown) playerY += playerSpeed;
+        document.addEventListener("keyup", function(event) {
+            if (event.key === "ArrowLeft" || event.key === "ArrowRight") {
+                playerSpeedX = 0;  
+            } else if (event.key === "ArrowUp" || event.key === "ArrowDown") {
+                playerSpeedY = 0;  
+            }
+        });
 
-    playerX = Math.max(0, Math.min(window.innerWidth - player.offsetWidth, playerX));
-    playerY = Math.max(0, Math.min(window.innerHeight - player.offsetHeight, playerY));
+        function moveHeart() {
+            if (heartCaught) return;
 
-    player.style.left = `${playerX}px`;
-    player.style.top = `${playerY}px`;
+            let maxX = window.innerWidth - 50;
+            let maxY = window.innerHeight - 50;
+            let randomX = Math.floor(Math.random() * maxX);
+            let randomY = Math.floor(Math.random() * maxY);
+            heart.style.left = randomX + "px";
+            heart.style.top = randomY + "px";
+        }
 
-    // Движение целей
-    targets.forEach(target => {
-      if (!target.active) return;
+        function checkCollision() {
+            if (heartCaught) return;
 
-      target.x += target.speedX;
-      target.y += target.speedY;
+            let playerRect = player.getBoundingClientRect();
+            let heartRect = heart.getBoundingClientRect();
 
-      if (target.x <= 0 || target.x >= window.innerWidth - target.el.offsetWidth) target.speedX *= -1;
-      if (target.y <= 0 || target.y >= window.innerHeight - target.el.offsetHeight) target.speedY *= -1;
+            if (
+                playerRect.left < heartRect.right &&
+                playerRect.right > heartRect.left &&
+                playerRect.top < heartRect.bottom &&
+                playerRect.bottom > heartRect.top
+            ) {
+                heartCaught = true;  
+                gameContainer.style.display = "none";  
+                congratsContainer.style.display = "block";  // Показываем экран поздравления
+            }
+        }
 
-      target.el.style.left = `${target.x}px`;
-      target.el.style.top = `${target.y}px`;
+        setInterval(moveHeart, 1000);
 
-      checkCollision(target);
-    });
+        function gameLoop() {
+            movePlayer();
+            checkCollision();  
+            if (!heartCaught) {
+                requestAnimationFrame(gameLoop);  
+            }
+        }
 
-    requestAnimationFrame(gameLoop);
-  }
+        // Действие при нажатии кнопки "Продолжить" после поздравления
+        continueButton.addEventListener("click", function() {
+            congratsContainer.style.display = "none";  // Скрываем экран поздравления
+            birthdayContainer.style.display = "block";  // Показываем экран поздравления с Днём Рождения
+        });
 
-  gameLoop();
+        // Реализация джойстика
+        let joystickActive = false;
+        let joystickX = 0;
+        let joystickY = 0;
 
-  function checkCollision(target) {
-    const playerRect = player.getBoundingClientRect();
-    const targetRect = target.el.getBoundingClientRect();
+        joystick.addEventListener("touchstart", function(e) {
+            joystickActive = true;
+            joystick.classList.add("active");
+            updateJoystickPosition(e);
+        });
 
-    const overlap = !(
-      playerRect.right < targetRect.left ||
-      playerRect.left > targetRect.right ||
-      playerRect.bottom < targetRect.top ||
-      playerRect.top > targetRect.bottom
-    );
+        joystick.addEventListener("touchmove", function(e) {
+            if (joystickActive) {
+                updateJoystickPosition(e);
+            }
+        });
 
-    if (overlap && target.active) {
-      target.active = false;
-      target.el.style.display = 'none';
-      score++;
-      scoreDisplay.textContent = `Поймано: ${score} / 3`;
+        joystick.addEventListener("touchend", function() {
+            joystickActive = false;
+            joystick.classList.remove("active");
+            playerSpeedX = 0;
+            playerSpeedY = 0;
+        });
 
-      if (score === 3) {
-        congrats.style.display = 'block';
-      }
-    }
-  }
+        function updateJoystickPosition(e) {
+            let bounds = document.getElementById("joystick-container").getBoundingClientRect();
+            let touch = e.touches[0];
+            let offsetX = touch.clientX - bounds.left - bounds.width / 2;
+            let offsetY = touch.clientY - bounds.top - bounds.height / 2;
 
-  // Клавиатура
-  window.addEventListener('keydown', (e) => {
-    switch (e.key) {
-      case 'ArrowLeft':
-      case 'a':
-      case 'A':
-        moveLeft = true;
-        break;
-      case 'ArrowRight':
-      case 'd':
-      case 'D':
-        moveRight = true;
-        break;
-      case 'ArrowUp':
-      case 'w':
-      case 'W':
-        moveUp = true;
-        break;
-      case 'ArrowDown':
-      case 's':
-      case 'S':
-        moveDown = true;
-        break;
-    }
-  });
+            let angle = Math.atan2(offsetY, offsetX);
+            let distance = Math.min(Math.hypot(offsetX, offsetY), 40); // Радиус джойстика
 
-  window.addEventListener('keyup', (e) => {
-    switch (e.key) {
-      case 'ArrowLeft':
-      case 'a':
-      case 'A':
-        moveLeft = false;
-        break;
-      case 'ArrowRight':
-      case 'd':
-      case 'D':
-        moveRight = false;
-        break;
-      case 'ArrowUp':
-      case 'w':
-      case 'W':
-        moveUp = false;
-        break;
-      case 'ArrowDown':
-      case 's':
-      case 'S':
-        moveDown = false;
-        break;
-    }
-  });
+            joystickX = Math.cos(angle) * distance;
+            joystickY = Math.sin(angle) * distance;
 
-  // Джойстик
-  let joystickStartX = 0;
-  let joystickStartY = 0;
-  let joystickAngle = 0;
-
-  joystick.addEventListener('touchstart', (e) => {
-    joystickStartX = e.touches[0].clientX;
-    joystickStartY = e.touches[0].clientY;
-  });
-
-  joystickContainer.addEventListener('touchmove', (e) => {
-    const deltaX = e.touches[0].clientX - joystickStartX;
-    const deltaY = e.touches[0].clientY - joystickStartY;
-
-    joystickAngle = Math.atan2(deltaY, deltaX);
-
-    // Управление по горизонтали и вертикали
-    playerX += Math.cos(joystickAngle) * playerSpeed;
-    playerY += Math.sin(joystickAngle) * playerSpeed;
-
-    playerX = Math.max(0, Math.min(window.innerWidth - player.offsetWidth, playerX));
-    playerY = Math.max(0, Math.min(window.innerHeight - player.offsetHeight, playerY));
-
-    player.style.left = `${playerX}px`;
-    player.style.top = `${playerY}px`;
-
-    e.preventDefault();
-  });
-
-  window.addEventListener('resize', () => {
-    playerX = window.innerWidth / 2;
-    playerY = window.innerHeight / 2;
-  });
-
-</script>
-
+            playerSpeedX = joystickX / 10;
+            playerSpeedY = joystickY / 10;
+        }
+    </script>
 </body>
 </html>
+
