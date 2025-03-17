@@ -159,7 +159,9 @@
     <!-- Игровой экран -->
     <div id="game-container">
         <div class="player" id="player"></div>
-        <div class="heart" id="heart"></div>
+        <div class="heart" id="heart1"></div>
+        <div class="heart" id="heart2"></div>
+        <div class="heart" id="heart3"></div>
     </div>
 
     <p id="message">🎉 С Днём Рождения! 💖💖💖</p>
@@ -171,7 +173,11 @@
 
     <script>
         let player = document.getElementById("player");
-        let heart = document.getElementById("heart");
+        let hearts = [
+            document.getElementById("heart1"),
+            document.getElementById("heart2"),
+            document.getElementById("heart3")
+        ];
         let message = document.getElementById("message");
         let gameContainer = document.getElementById("game-container");
         let introContainer = document.getElementById("intro-container");
@@ -185,7 +191,7 @@
 
         let positionX = window.innerWidth / 2 - 5;
         let positionY = window.innerHeight - 10;
-        let heartCaught = false;
+        let heartsCaught = 0;
         let velocity = 5;
         let playerSpeedX = 0;
         let playerSpeedY = 0;
@@ -200,7 +206,6 @@
 
         // Движение игрока
         function movePlayer() {
-            if (heartCaught) return;
             positionX += playerSpeedX;
             positionY += playerSpeedY;
             positionX = Math.max(0, Math.min(window.innerWidth - 5, positionX));
@@ -210,40 +215,45 @@
         }
 
         // Движение сердца
-        function moveHeart() {
-            if (heartCaught) return;
-            let maxX = window.innerWidth - 5;
-            let maxY = window.innerHeight - 10;
-            let randomX = Math.floor(Math.random() * maxX);
-            let randomY = Math.floor(Math.random() * maxY);
-            heart.style.left = randomX + "px";
-            heart.style.top = randomY + "px";
+        function moveHearts() {
+            hearts.forEach(heart => {
+                let maxX = window.innerWidth - 5;
+                let maxY = window.innerHeight - 10;
+                let randomX = Math.floor(Math.random() * maxX);
+                let randomY = Math.floor(Math.random() * maxY);
+                heart.style.left = randomX + "px";
+                heart.style.top = randomY + "px";
+            });
         }
 
         // Проверка на столкновение
         function checkCollision() {
-            if (heartCaught) return;
-            let playerRect = player.getBoundingClientRect();
-            let heartRect = heart.getBoundingClientRect();
-            if (
-                playerRect.left < heartRect.right &&
-                playerRect.right > heartRect.left &&
-                playerRect.top < heartRect.bottom &&
-                playerRect.bottom > heartRect.top
-            ) {
-                heartCaught = true;
-                gameContainer.style.display = "none";
-                joystickContainer.style.display = "none";
-                congratsContainer.style.display = "block";
-            }
+            hearts.forEach((heart, index) => {
+                let playerRect = player.getBoundingClientRect();
+                let heartRect = heart.getBoundingClientRect();
+                if (
+                    playerRect.left < heartRect.right &&
+                    playerRect.right > heartRect.left &&
+                    playerRect.top < heartRect.bottom &&
+                    playerRect.bottom > heartRect.top
+                ) {
+                    heartsCaught++;
+                    heart.style.display = "none"; // Сердечко исчезает
+                    if (heartsCaught === 3) {
+                        gameContainer.style.display = "none";
+                        joystickContainer.style.display = "none";
+                        congratsContainer.style.display = "block";
+                    }
+                }
+            });
         }
 
-        setInterval(moveHeart, 1000);
+        setInterval(moveHearts, 1000);
 
         function gameLoop() {
             movePlayer();
             checkCollision();
-            if (!heartCaught) {
+            if (heartsCaught < 3) {
                 requestAnimationFrame(gameLoop);
             }
         }
@@ -340,12 +350,16 @@
                         wishElement.classList.add('visible');
                     }, 100);
 
-                    // Скрываем пожелание через 3 секунды
                     setTimeout(() => {
                         wishElement.classList.remove('visible');
-                        index++;
-                        showNextWish(); // Показать следующее пожелание
-                    }, 3000);
+                    }, 4000);
+
+                    setTimeout(() => {
+                        wishElement.remove();
+                    }, 5000);
+
+                    index++;
+                    setTimeout(showNextWish, 4000);
                 }
             }
 
