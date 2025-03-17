@@ -13,12 +13,9 @@
             margin: 0;
             overflow: hidden;
         }
-        #game-container { 
-            position: absolute;
-            width: 100vw; 
-            height: 100vh;
-            display: none; /* Игра будет скрыта до начала */
-        }
+
+        /* --- твои стили без изменений --- */
+        #game-container { position: absolute; width: 100vw; height: 100vh; display: none; }
         .player, .heart { width: 50px; height: 50px; position: absolute; }
         .player { background: blue; left: 50%; bottom: 10px; transform: translateX(-50%); }
         .heart { 
@@ -27,83 +24,34 @@
             top: 50px; 
             transform: translateX(-50%);
         }
-        #message { 
-            display: none; 
-            font-size: 4vw; /* Уменьшаем размер шрифта */
-            color: red; 
-            position: absolute; 
-            top: 50%; 
-            left: 50%; 
-            transform: translate(-50%, -50%); 
-        }
-        #congrats-container {
+        #message { display: none; font-size: 4vw; color: red; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); }
+        #congrats-container, #birthday-container, #intro-container {
             position: absolute;
-            top: 20%;
             left: 50%;
             transform: translateX(-50%);
-            display: none; /* Скрыто до завершения игры */
+            display: none;
         }
-        #congrats-container h1 {
-            font-size: 6vw; /* Уменьшаем размер шрифта */
-            color: green;
-        }
-        #congrats-container p {
-            font-size: 4vw; /* Уменьшаем размер шрифта */
-        }
-        #congrats-container button {
+        #intro-container { top: 10%; display: block; }
+        #congrats-container { top: 20%; }
+        #birthday-container { top: 50%; transform: translate(-50%, -50%); }
+
+        h1 { font-size: 6vw; }
+        p { font-size: 4vw; }
+
+        button {
             padding: 2vw 5vw;
-            font-size: 3.5vw; /* Уменьшаем размер шрифта */
+            font-size: 3.5vw;
             cursor: pointer;
             background-color: blue;
             color: white;
             border: none;
             border-radius: 5px;
         }
-        #birthday-container {
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translateX(-50%) translateY(-50%);
-            display: none; /* Скрыто до нажатия "Продолжить" */
-        }
-        #birthday-container h1 {
-            font-size: 6vw; /* Уменьшаем размер шрифта */
-            color: red;
-        }
-        #birthday-container p {
-            font-size: 4vw; /* Уменьшаем размер шрифта */
-            color: #D64D4D; /* Новый цвет для пожеланий */
-        }
-        #birthday-container button {
-            padding: 2vw 5vw;
-            font-size: 3.5vw; /* Уменьшаем размер шрифта */
-            cursor: pointer;
-            background-color: green;
-            color: white;
-            border: none;
-            border-radius: 5px;
-        }
-        #intro-container {
-            position: absolute;
-            top: 10%;
-            left: 50%;
-            transform: translateX(-50%);
-        }
-        #intro-container h1 {
-            font-size: 6vw; /* Уменьшаем размер шрифта */
-        }
-        #intro-container p {
-            font-size: 4vw; /* Уменьшаем размер шрифта */
-        }
-        #intro-container button {
-            padding: 2vw 5vw;
-            font-size: 3.5vw; /* Уменьшаем размер шрифта */
-            cursor: pointer;
-            background-color: blue;
-            color: white;
-            border: none;
-            border-radius: 5px;
-        }
+
+        #congrats-container h1 { color: green; }
+        #birthday-container h1 { color: red; }
+        #birthday-container p { color: #D64D4D; }
+
         .bear {
             position: absolute;
             width: 50px;
@@ -111,22 +59,15 @@
             background: url('https://cdn.pixabay.com/photo/2017/08/30/12/32/teddy-2690951_960_720.png') no-repeat center/cover;
             animation: bounce 1.5s ease-in-out infinite;
         }
-        .bear-left {
-            left: 10px;
-            top: 50%;
-            transform: translateY(-50%);
-        }
-        .bear-right {
-            right: 10px;
-            top: 50%;
-            transform: translateY(-50%);
-        }
+
+        .bear-left { left: 10px; top: 50%; transform: translateY(-50%); }
+        .bear-right { right: 10px; top: 50%; transform: translateY(-50%); }
+
         @keyframes bounce {
             0%, 100% { transform: translateY(0); }
             50% { transform: translateY(-20px); }
         }
 
-        /* Джойстик */
         #joystick-container {
             position: absolute;
             bottom: 20px;
@@ -135,7 +76,7 @@
             height: 150px;
             border: 2px solid white;
             border-radius: 50%;
-            display: none; /* Скрываем джойстик до начала игры */
+            display: none;
             align-items: center;
             justify-content: center;
         }
@@ -152,6 +93,31 @@
 
         #joystick-inner.active {
             background: rgba(255, 255, 255, 0.8);
+        }
+
+        /* Салют */
+        .firework {
+            position: absolute;
+            border-radius: 50%;
+            pointer-events: none;
+            animation: explode 1s ease-out forwards;
+        }
+
+        @keyframes explode {
+            0% { opacity: 1; transform: scale(0); }
+            100% { opacity: 0; transform: scale(1); }
+        }
+
+        #fireworks-button {
+            margin-top: 20px;
+            padding: 2vw 5vw;
+            font-size: 3.5vw;
+            cursor: pointer;
+            background-color: #FF69B4;
+            color: white;
+            border: none;
+            border-radius: 10px;
+            display: none; /* изначально скрыта */
         }
     </style>
 </head>
@@ -179,6 +145,9 @@
         <p>Желаю тебе яркой жизни, наполненной вдохновением и успехами! 💖</p>
         <div class="bear bear-left"></div>
         <div class="bear bear-right"></div>
+
+        <!-- Кнопка запуска салюта -->
+        <button id="fireworks-button">Запустить салют 🎆</button>
     </div>
 
     <!-- Игровой экран -->
@@ -186,6 +155,7 @@
         <div class="player" id="player"></div>
         <div class="heart" id="heart"></div>
     </div>
+
     <p id="message">🎉 С Днём Рождения! 💖💖💖</p>
 
     <!-- Джойстик -->
@@ -197,68 +167,54 @@
         let player = document.getElementById("player");
         let heart = document.getElementById("heart");
         let message = document.getElementById("message");
-        let gameContainer = document.getElementById("game-container"); 
-        let introContainer = document.getElementById("intro-container"); // Контейнер с вступлением
+        let gameContainer = document.getElementById("game-container");
+        let introContainer = document.getElementById("intro-container");
         let startButton = document.getElementById("start-button");
-        let congratsContainer = document.getElementById("congrats-container"); // Контейнер с поздравлением
+        let congratsContainer = document.getElementById("congrats-container");
         let continueButton = document.getElementById("continue-button");
-        let birthdayContainer = document.getElementById("birthday-container"); // Экран поздравления с Днём Рождения
+        let birthdayContainer = document.getElementById("birthday-container");
         let joystickContainer = document.getElementById("joystick-container");
         let joystick = document.getElementById("joystick-inner");
+        let fireworksButton = document.getElementById("fireworks-button");
 
-        let positionX = window.innerWidth / 2 - 25;  
-        let positionY = window.innerHeight - 60;  
+        let positionX = window.innerWidth / 2 - 25;
+        let positionY = window.innerHeight - 60;
         let heartCaught = false;
+        let velocity = 5;
+        let playerSpeedX = 0;
+        let playerSpeedY = 0;
 
-        let velocity = 5;  
-        let playerSpeedX = 0;  
-        let playerSpeedY = 0;  
-
-        // Начало игры
         startButton.addEventListener("click", function() {
-            introContainer.style.display = "none";  // Скрываем вступительный экран
-            gameContainer.style.display = "block";  // Показываем игровой экран
-            joystickContainer.style.display = "flex"; // Показываем джойстик
-            gameLoop();  // Запускаем игровой цикл
+            introContainer.style.display = "none";
+            gameContainer.style.display = "block";
+            joystickContainer.style.display = "flex";
+            gameLoop();
         });
 
-        // Плавное движение персонажа
         function movePlayer() {
-            if (heartCaught) return;  
-
+            if (heartCaught) return;
             positionX += playerSpeedX;
             positionY += playerSpeedY;
-
             positionX = Math.max(0, Math.min(window.innerWidth - 50, positionX));
             positionY = Math.max(0, Math.min(window.innerHeight - 50, positionY));
-
             player.style.left = positionX + "px";
             player.style.top = positionY + "px";
         }
 
         document.addEventListener("keydown", function(event) {
-            if (event.key === "ArrowLeft") {
-                playerSpeedX = -velocity;  
-            } else if (event.key === "ArrowRight") {
-                playerSpeedX = velocity;  
-            } else if (event.key === "ArrowUp") {
-                playerSpeedY = -velocity;  
-            } else if (event.key === "ArrowDown") {
-                playerSpeedY = velocity;  
-            }
+            if (event.key === "ArrowLeft") { playerSpeedX = -velocity; }
+            else if (event.key === "ArrowRight") { playerSpeedX = velocity; }
+            else if (event.key === "ArrowUp") { playerSpeedY = -velocity; }
+            else if (event.key === "ArrowDown") { playerSpeedY = velocity; }
         });
 
         document.addEventListener("keyup", function(event) {
-            if (event.key === "ArrowLeft" || event.key === "ArrowRight") {
-                playerSpeedX = 0;  
-            } else if (event.key === "ArrowUp" || event.key === "ArrowDown") {
-                playerSpeedY = 0;  
-            }
+            if (event.key === "ArrowLeft" || event.key === "ArrowRight") { playerSpeedX = 0; }
+            if (event.key === "ArrowUp" || event.key === "ArrowDown") { playerSpeedY = 0; }
         });
 
         function moveHeart() {
             if (heartCaught) return;
-
             let maxX = window.innerWidth - 50;
             let maxY = window.innerHeight - 50;
             let randomX = Math.floor(Math.random() * maxX);
@@ -269,20 +225,18 @@
 
         function checkCollision() {
             if (heartCaught) return;
-
             let playerRect = player.getBoundingClientRect();
             let heartRect = heart.getBoundingClientRect();
-
             if (
                 playerRect.left < heartRect.right &&
                 playerRect.right > heartRect.left &&
                 playerRect.top < heartRect.bottom &&
                 playerRect.bottom > heartRect.top
             ) {
-                heartCaught = true;  
-                gameContainer.style.display = "none";  
-                joystickContainer.style.display = "none"; // Скрываем джойстик
-                congratsContainer.style.display = "block";  // Показываем экран поздравления
+                heartCaught = true;
+                gameContainer.style.display = "none";
+                joystickContainer.style.display = "none";
+                congratsContainer.style.display = "block";
             }
         }
 
@@ -290,19 +244,19 @@
 
         function gameLoop() {
             movePlayer();
-            checkCollision();  
+            checkCollision();
             if (!heartCaught) {
-                requestAnimationFrame(gameLoop);  
+                requestAnimationFrame(gameLoop);
             }
         }
 
-        // Действие при нажатии кнопки "Продолжить" после поздравления
         continueButton.addEventListener("click", function() {
-            congratsContainer.style.display = "none";  // Скрываем экран поздравления
-            birthdayContainer.style.display = "block";  // Показываем экран поздравления с Днём Рождения
+            congratsContainer.style.display = "none";
+            birthdayContainer.style.display = "block";
+            fireworksButton.style.display = "inline-block"; // Показываем кнопку запуска салюта
         });
 
-        // Реализация джойстика
+        // Джойстик
         let joystickActive = false;
         let joystickX = 0;
         let joystickY = 0;
@@ -314,9 +268,7 @@
         });
 
         joystick.addEventListener("touchmove", function(e) {
-            if (joystickActive) {
-                updateJoystickPosition(e);
-            }
+            if (joystickActive) updateJoystickPosition(e);
         });
 
         joystick.addEventListener("touchend", function() {
@@ -331,17 +283,31 @@
             let touch = e.touches[0];
             let offsetX = touch.clientX - bounds.left - bounds.width / 2;
             let offsetY = touch.clientY - bounds.top - bounds.height / 2;
-
             let angle = Math.atan2(offsetY, offsetX);
-            let distance = Math.min(Math.hypot(offsetX, offsetY), 40); // Радиус джойстика
-
+            let distance = Math.min(Math.hypot(offsetX, offsetY), 40);
             joystickX = Math.cos(angle) * distance;
             joystickY = Math.sin(angle) * distance;
-
             playerSpeedX = joystickX / 10;
             playerSpeedY = joystickY / 10;
+        }
+
+        // Салют
+        fireworksButton.addEventListener("click", function() {
+            for (let i = 0; i < 20; i++) {
+                createFirework();
+            }
+        });
+
+        function createFirework() {
+            const firework = document.createElement('div');
+            firework.classList.add('firework');
+            firework.style.width = firework.style.height = `${Math.random() * 10 + 5}px`;
+            firework.style.left = `${Math.random() * window.innerWidth}px`;
+            firework.style.top = `${Math.random() * window.innerHeight}px`;
+            firework.style.backgroundColor = `hsl(${Math.random() * 360}, 100%, 50%)`;
+            document.body.appendChild(firework);
+            setTimeout(() => firework.remove(), 1000);
         }
     </script>
 </body>
 </html>
-
