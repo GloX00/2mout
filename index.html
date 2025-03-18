@@ -5,10 +5,10 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Мини-игра с поздравлением</title>
     <style>
-        body { 
-            text-align: center; 
-            font-family: Arial, sans-serif; 
-            background: black url('https://www.transparenttextures.com/patterns/stardust.png'); 
+        body {
+            text-align: center;
+            font-family: Arial, sans-serif;
+            background: black url('https://www.transparenttextures.com/patterns/stardust.png');
             color: white;
             margin: 0;
             overflow: hidden;
@@ -19,7 +19,7 @@
         }
 
         #game-container { position: absolute; width: 100%; height: 100%; display: none; }
-        .player, .heart { width: 5vw; height: 5vw; position: absolute; }
+        .player, .heart { width: 50px; height: 50px; position: absolute; }
         .player { background: blue; left: 50%; bottom: 10%; transform: translateX(-50%); }
         .heart { 
             background: url('https://cdn-icons-png.flaticon.com/512/833/833472.png') no-repeat center/cover; 
@@ -27,6 +27,7 @@
             top: 10%; 
             transform: translateX(-50%);
         }
+
         #message { display: none; font-size: 3vw; color: red; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); }
         #congrats-container, #birthday-container, #intro-container {
             position: absolute;
@@ -34,16 +35,17 @@
             transform: translateX(-50%);
             display: none;
         }
+
         #intro-container { top: 10%; display: block; }
         #congrats-container { top: 20%; }
         #birthday-container { top: 50%; transform: translate(-50%, -50%); }
 
-        h1 { font-size: 6vw; }
-        p { font-size: 4vw; }
+        h1 { font-size: 4vw; }
+        p { font-size: 3vw; }
 
         button {
-            padding: 2vw 5vw;
-            font-size: 3.5vw;
+            padding: 1vw 3vw;
+            font-size: 3vw;
             cursor: pointer;
             background-color: blue;
             color: white;
@@ -98,38 +100,44 @@
             background: rgba(255, 255, 255, 0.8);
         }
 
-        .firework {
-            position: absolute;
-            border-radius: 50%;
+        #wish-container {
+            font-size: 2.5vw;
+            color: #FFD700;
+            opacity: 0;
+            transition: opacity 0.5s;
+            min-height: 4vw;
+        }
+
+        /* Стили для летающих сердечек */
+        .flying-heart {
+            position: fixed;
+            width: 30px;
+            height: 30px;
+            background: url('https://cdn-icons-png.flaticon.com/512/833/833472.png') no-repeat center/contain;
+            top: 100vh;
+            animation: floatUp 10s linear forwards;
+            z-index: 0; /* чтобы сердечки были фоном */
+            opacity: 0.8;
             pointer-events: none;
-            animation: explode 1s ease-out forwards;
         }
 
-        @keyframes explode {
-            0% { opacity: 1; transform: scale(0); }
-            100% { opacity: 0; transform: scale(1); }
+        @keyframes floatUp {
+            0% {
+                transform: translateY(0);
+                opacity: 0.8;
+            }
+            100% {
+                transform: translateY(-110vh);
+                opacity: 0;
+            }
         }
 
-        /* Медиазапросы для ПК */
         @media (min-width: 768px) {
             h1 { font-size: 3vw; }
             p { font-size: 2vw; }
             button { font-size: 2.5vw; }
             #birthday-container h1 { font-size: 2.5vw; }
             #birthday-container p { font-size: 2vw; }
-        }
-
-        .wish {
-            opacity: 0;
-            position: absolute;
-            font-size: 2vw;
-            transition: opacity 1s ease-out;
-        }
-
-        .wish.visible {
-            opacity: 1;
-            color: yellow;
-            font-weight: bold;
         }
     </style>
 </head>
@@ -159,9 +167,7 @@
     <!-- Игровой экран -->
     <div id="game-container">
         <div class="player" id="player"></div>
-        <div class="heart" id="heart1"></div>
-        <div class="heart" id="heart2"></div>
-        <div class="heart" id="heart3"></div>
+        <div class="heart" id="heart"></div>
     </div>
 
     <p id="message">🎉 С Днём Рождения! 💖💖💖</p>
@@ -173,11 +179,7 @@
 
     <script>
         let player = document.getElementById("player");
-        let hearts = [
-            document.getElementById("heart1"),
-            document.getElementById("heart2"),
-            document.getElementById("heart3")
-        ];
+        let heart = document.getElementById("heart");
         let message = document.getElementById("message");
         let gameContainer = document.getElementById("game-container");
         let introContainer = document.getElementById("intro-container");
@@ -191,12 +193,11 @@
 
         let positionX = window.innerWidth / 2 - 5;
         let positionY = window.innerHeight - 10;
-        let heartsCaught = 0;
+        let heartCaught = false;
         let velocity = 5;
         let playerSpeedX = 0;
         let playerSpeedY = 0;
 
-        // Старт игры
         startButton.addEventListener("click", function() {
             introContainer.style.display = "none";
             gameContainer.style.display = "block";
@@ -204,56 +205,49 @@
             gameLoop();
         });
 
-        // Движение игрока
         function movePlayer() {
+            if (heartCaught) return;
             positionX += playerSpeedX;
             positionY += playerSpeedY;
-            positionX = Math.max(0, Math.min(window.innerWidth - 5, positionX));
-            positionY = Math.max(0, Math.min(window.innerHeight - 10, positionY));
+            positionX = Math.max(0, Math.min(window.innerWidth - 50, positionX));
+            positionY = Math.max(0, Math.min(window.innerHeight - 50, positionY));
             player.style.left = positionX + "px";
             player.style.top = positionY + "px";
         }
 
-        // Движение сердца
-        function moveHearts() {
-            hearts.forEach(heart => {
-                let maxX = window.innerWidth - 5;
-                let maxY = window.innerHeight - 10;
-                let randomX = Math.floor(Math.random() * maxX);
-                let randomY = Math.floor(Math.random() * maxY);
-                heart.style.left = randomX + "px";
-                heart.style.top = randomY + "px";
-            });
+        function moveHeart() {
+            if (heartCaught) return;
+            let maxX = window.innerWidth - 50;
+            let maxY = window.innerHeight - 50;
+            let randomX = Math.floor(Math.random() * maxX);
+            let randomY = Math.floor(Math.random() * maxY);
+            heart.style.left = randomX + "px";
+            heart.style.top = randomY + "px";
         }
 
-        // Проверка на столкновение
         function checkCollision() {
-            hearts.forEach((heart, index) => {
-                let playerRect = player.getBoundingClientRect();
-                let heartRect = heart.getBoundingClientRect();
-                if (
-                    playerRect.left < heartRect.right &&
-                    playerRect.right > heartRect.left &&
-                    playerRect.top < heartRect.bottom &&
-                    playerRect.bottom > heartRect.top
-                ) {
-                    heartsCaught++;
-                    heart.style.display = "none"; // Сердечко исчезает
-                    if (heartsCaught === 3) {
-                        gameContainer.style.display = "none";
-                        joystickContainer.style.display = "none";
-                        congratsContainer.style.display = "block";
-                    }
-                }
-            });
+            if (heartCaught) return;
+            let playerRect = player.getBoundingClientRect();
+            let heartRect = heart.getBoundingClientRect();
+            if (
+                playerRect.left < heartRect.right &&
+                playerRect.right > heartRect.left &&
+                playerRect.top < heartRect.bottom &&
+                playerRect.bottom > heartRect.top
+            ) {
+                heartCaught = true;
+                gameContainer.style.display = "none";
+                joystickContainer.style.display = "none";
+                congratsContainer.style.display = "block";
+            }
         }
 
-        setInterval(moveHearts, 1000);
+        setInterval(moveHeart, 1000);
 
         function gameLoop() {
             movePlayer();
             checkCollision();
-            if (heartsCaught < 3) {
+            if (!heartCaught) {
                 requestAnimationFrame(gameLoop);
             }
         }
@@ -261,35 +255,42 @@
         continueButton.addEventListener("click", function() {
             congratsContainer.style.display = "none";
             birthdayContainer.style.display = "block";
-            generateRandomWishes();
+            showSequentialWishes();
         });
 
-        // Управление для ПК
-        window.addEventListener("keydown", function(e) {
-            if (e.key === "ArrowLeft" || e.key === "a") {
-                playerSpeedX = -velocity;
-            } else if (e.key === "ArrowRight" || e.key === "d") {
-                playerSpeedX = velocity;
-            } else if (e.key === "ArrowUp" || e.key === "w") {
-                playerSpeedY = -velocity;
-            } else if (e.key === "ArrowDown" || e.key === "s") {
-                playerSpeedY = velocity;
-            }
-        });
+        const wishTexts = [
+            "С Днём Рождения! Пусть сбудется всё, о чём ты мечтаешь! 🎉",
+            "Желаю счастья, удачи и много вдохновения! 🌟",
+            "Смело иди к своей цели, и пусть путь будет лёгким! 💪",
+            "Пусть каждый день будет полон радости и вдохновения! 🌈",
+            "Ты - уникальна, и этот день принадлежит тебе! 💖",
+            "Пусть твоя жизнь будет наполнена яркими моментами и счастьем! 🎈",
+            "С Днём Рождения! Пусть сбудутся все твои мечты! 🎁",
+            "Пусть этот день будет самым лучшим в твоей жизни! 🎂",
+            "Счастья, здоровья и море позитива! 🌊",
+            "Пусть твоя жизнь будет наполнена радостью и счастьем! 🌺",
+            "Пусть этот день запомнится на всю жизнь! 🎊",
+            "Ты можешь всё! 🌟",
+            "Ты заслуживаешь самого лучшего! 🌟",
+            "Ты невероятная! 💖"
+        ];
 
-        window.addEventListener("keyup", function(e) {
-            if (e.key === "ArrowLeft" || e.key === "ArrowRight" || e.key === "a" || e.key === "d") {
-                playerSpeedX = 0;
-            }
-            if (e.key === "ArrowUp" || e.key === "ArrowDown" || e.key === "w" || e.key === "s") {
-                playerSpeedY = 0;
-            }
-        });
+        let wishIndex = 0;
 
-        // Джойстик
+        function showSequentialWishes() {
+            wishContainer.style.opacity = 0;
+
+            setTimeout(() => {
+                wishContainer.textContent = wishTexts[wishIndex];
+                wishContainer.style.opacity = 1;
+                wishIndex++;
+                if (wishIndex >= wishTexts.length) wishIndex = 0;
+
+                setTimeout(showSequentialWishes, 2500);
+            }, 500);
+        }
+
         let joystickActive = false;
-        let joystickX = 0;
-        let joystickY = 0;
 
         joystick.addEventListener("touchstart", function(e) {
             joystickActive = true;
@@ -308,63 +309,49 @@
             playerSpeedY = 0;
         });
 
+        document.addEventListener("keydown", function(e) {
+            if (e.key === "ArrowUp") playerSpeedY = -velocity;
+            if (e.key === "ArrowDown") playerSpeedY = velocity;
+            if (e.key === "ArrowLeft") playerSpeedX = -velocity;
+            if (e.key === "ArrowRight") playerSpeedX = velocity;
+        });
+
         function updateJoystickPosition(e) {
-            let bounds = joystickContainer.getBoundingClientRect();
-            let touch = e.touches[0];
-            let offsetX = touch.clientX - bounds.left - bounds.width / 2;
-            let offsetY = touch.clientY - bounds.top - bounds.height / 2;
-            let angle = Math.atan2(offsetY, offsetX);
-            let distance = Math.min(Math.hypot(offsetX, offsetY), 40);
-            joystickX = Math.cos(angle) * distance;
-            joystickY = Math.sin(angle) * distance;
-            playerSpeedX = joystickX / 10;
-            playerSpeedY = joystickY / 10;
+            const touch = e.touches[0];
+            const rect = joystickContainer.getBoundingClientRect();
+            const centerX = rect.left + rect.width / 2;
+            const centerY = rect.top + rect.height / 2;
+            const dx = touch.clientX - centerX;
+            const dy = touch.clientY - centerY;
+            const angle = Math.atan2(dy, dx);
+
+            playerSpeedX = Math.cos(angle) * velocity;
+            playerSpeedY = Math.sin(angle) * velocity;
+
+            joystick.style.transform = `translate(${dx}px, ${dy}px)`;
         }
 
-        // Генерация случайных пожеланий
-        function generateRandomWishes() {
-            const wishes = [
-                "Пусть в твоей жизни будет больше радости!",
-                "Смейся как можно больше и чаще! 🎉",
-                "Будь счастлива и успешна во всём! 💖",
-                "Желаю тебе самых ярких моментов в жизни!",
-                "Пусть сбудутся все твои мечты! ✨",
-                "Желаю тебе крепкого здоровья на многие годы! 💪",
-                "Чаще улыбайся и наслаждайся каждым моментом жизни! 😄",
-                "Пусть каждый день приносит тебе радость и вдохновение! 🌟",
-                "Желаю тебе много счастливых и ярких дней! 🌞",
-                "Ты заслуживаешь только лучшего в жизни! 🌈"
-            ];
+        // Функция для создания летящих сердечек
+        function createFlyingHeart() {
+            const heart = document.createElement('div');
+            heart.classList.add('flying-heart');
+            heart.style.left = Math.random() * 100 + 'vw';
+            document.body.appendChild(heart);
 
-            // Показываем пожелания по очереди с задержкой
-            let index = 0;
+            setTimeout(() => {
+                heart.remove();
+            }, 10000);
+        }
 
-            function showNextWish() {
-                if (index < wishes.length) {
-                    let wishElement = document.createElement('p');
-                    wishElement.textContent = wishes[index];
-                    wishElement.classList.add('wish');
-                    wishContainer.appendChild(wishElement);
-
-                    setTimeout(() => {
-                        wishElement.classList.add('visible');
-                    }, 100);
-
-                    setTimeout(() => {
-                        wishElement.classList.remove('visible');
-                    }, 4000);
-
-                    setTimeout(() => {
-                        wishElement.remove();
-                    }, 5000);
-
-                    index++;
-                    setTimeout(showNextWish, 4000);
-                }
+        // Запуск летающих сердечек только при отображении birthdayContainer
+        const observer = new MutationObserver(() => {
+            if (birthdayContainer.style.display === "block") {
+                setInterval(createFlyingHeart, 500);
+                observer.disconnect(); // чтобы не дублировалось
             }
+        });
 
-            showNextWish();
-        }
+        observer.observe(birthdayContainer, { attributes: true, attributeFilter: ['style'] });
     </script>
 </body>
 </html>
